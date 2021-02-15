@@ -61,13 +61,17 @@ const inputClosePin = document.querySelector('.form__input--pin');
 //************************************************
 //************************************************
 //show the account number in webpage
-const displayMovements = function(movements) {
+//sort is false because we want to show number in array order
+const displayMovements = function(movements, sort = false) {
   //remove the text in contanerMovements
   containerMovements.innerHTML = '';
   //.textContent = 0
 
-  //mov>>is current movmement, i>>> index
-  movements.forEach(function(mov, i) {
+  //click on sort, sort = true >>> we call sort end
+  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+
+  //mov>>is current movement, i>>> index
+  movs.forEach(function(mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
     //template literal is amazing for call html elements
     const html = `
@@ -123,8 +127,8 @@ const calcDisplaySummary = function(acc) {
 //we call it in login
 // calcDisplaySummary(account1.movements);
 
-//************************************************
-//************************************************
+//**********************************************************************
+//**********************************************************************
 //make username
 // const user = 'Steven Thomas Williams';
 // const username1 = user.toLowerCase().split(' ').map(function(name) {
@@ -133,8 +137,8 @@ const calcDisplaySummary = function(acc) {
 // ///do it with arrow function
 // const username2 = user.toLowerCase().split(' ').map(name => name[0]).join('');
 // console.log(username2);
-//************************************************
-//************************************************
+//*******************************************************************
+//*******************************************************************
 const creatUsernames = function(accs) {
   //we use the forEach instead of map because we dont want to creat new array, we want array to mutate
   accs.forEach(function(acc) {
@@ -149,15 +153,15 @@ creatUsernames(accounts);
 console.log(accounts);
 
 const updateUI = function(acc) {
-   //display movements
+  //display movements
   displayMovements(acc.movements);
-    //display balance
-    calcPrintBalance(acc);
-    //display summary
-    calcDisplaySummary(acc);
-}
-//************************************************
-//************************************************
+  //display balance
+  calcPrintBalance(acc);
+  //display summary
+  calcDisplaySummary(acc);
+};
+//*****************************************************************
+//*****************************************************************
 //event handler
 
 // because we will need this information about the current account also later in other functions.
@@ -198,11 +202,11 @@ btnLogin.addEventListener('click', function(e) {
     inputLoginPin.blur();
 
     //update UI
-    updateUI(currentAccount)
+    updateUI(currentAccount);
   }
 });
 
-//////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 //transfer
 btnTransfer.addEventListener('click', function(e) {
   //because of form
@@ -214,7 +218,7 @@ btnTransfer.addEventListener('click', function(e) {
   console.log(amount, receiverAcc);
 
   //clean Transfer money
-  inputTransferAmount.value = inputTransferTo.value = "";
+  inputTransferAmount.value = inputTransferTo.value = '';
 
   //check the money
   if (amount > 0 &&
@@ -224,50 +228,60 @@ btnTransfer.addEventListener('click', function(e) {
     //here say if receive account exist and it is not equal with currentAccount username
     receiverAcc?.username !== currentAccount.username) {
     //doing the transfer
-    currentAccount.movements.push(-amount)
-    receiverAcc.movements.push(amount)
+    currentAccount.movements.push(-amount);
+    receiverAcc.movements.push(amount);
 
     //update UI
-    updateUI(currentAccount)
+    updateUI(currentAccount);
   }
 });
 
 /////////////////////////////////////////////////////////////////////////
 //LOAN
 
-btnLoan.addEventListener("click", function(e) {
+btnLoan.addEventListener('click', function(e) {
   e.preventDefault();
 
-  const amount = Number(inputLoanAmount.value)
+  const amount = Number(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     //add movement
-    currentAccount.movements.push(amount)
+    currentAccount.movements.push(amount);
 
     //Update UI
-    updateUI(currentAccount)
+    updateUI(currentAccount);
   }
-  inputLoanAmount.value = ""
-})
+  inputLoanAmount.value = '';
+});
 
 //////////////////////////////////////////////////////////////////////////
 //close account
 //with find index method
 
-btnClose.addEventListener("click", function(e) {
-  e.preventDefault()
+btnClose.addEventListener('click', function(e) {
+  e.preventDefault();
 
   if (currentAccount.username === inputCloseUsername.value && currentAccount.pin === Number(inputClosePin.value)) {
     //.indexOf(23)
     const index = accounts.findIndex(acc => acc.username === currentAccount.username);
 
     //delete account
-    accounts.splice(index, 1)
+    accounts.splice(index, 1);
 
     //Hide UI
     containerApp.style.opacity = 0;
   }
 
-  inputCloseUsername.value = inputClosePin.value = "";
-})
+  inputCloseUsername.value = inputClosePin.value = '';
+});
 
+//////////////////////////////////////////////////////////////////////////
+//sort
+//because we want with click on sort for second times the elements back to normal state so we need a sorted
+let sorted = false;
+btnSort.addEventListener('click', function(e) {
+  e.preventDefault();
+  //!sorted>>> we want to happen with opposite of sorted
+  displayMovements(currentAccount.movements, !sorted);
+  sorted = !sorted;
+});
